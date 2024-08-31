@@ -1,8 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"api/src/router"
+	"fmt"
+	"log"
+	"net/http"
+)
 
-func Main() {
+func main() {
 
 	fmt.Println("Running API...")
+
+	r := router.GenerateRouter()
+
+	log.Fatal(http.ListenAndServe(":8080", r))
+
 }
