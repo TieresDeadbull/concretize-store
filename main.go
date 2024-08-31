@@ -1,6 +1,7 @@
 package main
 
 import (
+	"api/src/config.go"
 	"api/src/router"
 	"fmt"
 	"log"
@@ -9,10 +10,12 @@ import (
 
 func main() {
 
-	fmt.Println("Running API...")
+	config.Load()
 
 	r := router.GenerateRouter()
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	fmt.Println("Running API...")
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r))
 
 }
