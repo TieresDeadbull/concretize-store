@@ -6,13 +6,15 @@ import (
 	"api/src/repositories"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	bodyRequest, err := ioutil.ReadAll(r.Body)
+
+	defer r.Body.Close()
+	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,8 +40,19 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
+	db, err := database.ConnectDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	userRepository := repositories.NewUsersRepo(db)
+	err = userRepository.ListUsers()
+	if err != nil {
+		log.Fatal(err)
+	}
 	w.Write([]byte("Listando todos os usuários"))
 }
+
 func FindUserByID(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Buscando Usuário por ID"))
 }

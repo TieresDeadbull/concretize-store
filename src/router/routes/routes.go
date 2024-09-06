@@ -16,7 +16,8 @@ type Route struct {
 
 // Adiciona as rotas ao router
 func ConfigRoutes(m *mux.Router) *mux.Router {
-	routes := userRoutes
+	routes := healthcheckRoute
+	routes = append(routes, userRoutes...)
 
 	for _, route := range routes {
 		m.HandleFunc(route.URI, route.Function).Methods(route.Method)
