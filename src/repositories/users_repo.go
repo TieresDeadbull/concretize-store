@@ -16,7 +16,7 @@ func NewUsersRepo(db *sql.DB) *UsersRepo {
 }
 
 // Função que manipula o banco para criação de usuário
-func (userRepo UsersRepo) CreateUser(user models.User) (uint64, error) {
+func (userRepo UsersRepo) CreateUser(user models.User) (uint, error) {
 	statement, err := userRepo.db.Prepare(
 		"insert into users (name, cpf, email, password, address, phone) values (?, ?, ?, ?, ?, ?)",
 	)
@@ -43,7 +43,7 @@ func (userRepo UsersRepo) CreateUser(user models.User) (uint64, error) {
 		return 0, err
 	}
 
-	return uint64(lastInsertID), nil
+	return uint(lastInsertID), nil
 
 }
 

@@ -4,8 +4,8 @@ import (
 	"api/src/database.go"
 	"api/src/models"
 	"api/src/repositories"
+	"api/src/responses"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -16,27 +16,28 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		responses.Errors(w, http.StatusUnprocessableEntity, err)
 	}
 
 	var user models.User
 
 	if err = json.Unmarshal(bodyRequest, &user); err != nil {
-		log.Fatal(err)
+		responses.Errors(w, http.StatusBadRequest, err)
 	}
 
 	db, err := database.ConnectDB()
 	if err != nil {
-		log.Fatal(err)
+		responses.Errors(w, http.StatusInternalServerError, err)
 	}
 
 	userRepository := repositories.NewUsersRepo(db)
-	lastUserID, err := userRepository.CreateUser(user)
+	user.ID, err = userRepository.CreateUser(user)
 	if err != nil {
-		log.Fatal(err)
+		responses.Errors(w, http.StatusInternalServerError, err)
 	}
 
-	w.Write([]byte(fmt.Sprintf("Usuário inserido com ID: %d", lastUserID)))
+	responses.JSON(w, http.StatusCreated, user)
+
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
