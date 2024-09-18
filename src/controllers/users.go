@@ -13,27 +13,36 @@ import (
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 
-	defer r.Body.Close()
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
 		responses.Errors(w, http.StatusUnprocessableEntity, err)
+		return
 	}
 
 	var user models.User
 
 	if err = json.Unmarshal(bodyRequest, &user); err != nil {
 		responses.Errors(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = user.Prepare(); err != nil {
+		responses.Errors(w, http.StatusBadRequest, err)
+		return
 	}
 
 	db, err := database.ConnectDB()
 	if err != nil {
 		responses.Errors(w, http.StatusInternalServerError, err)
+		return
 	}
+	defer db.Close()
 
 	userRepository := repositories.NewUsersRepo(db)
 	user.ID, err = userRepository.CreateUser(user)
 	if err != nil {
 		responses.Errors(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	responses.JSON(w, http.StatusCreated, user)
